@@ -9,12 +9,12 @@ def stepFunction(t):
 def prediction(X, W, b):
     return stepFunction((np.matmul(X,W)+b)[0])
 
-# The function should receive as inputs the data X, the labels y,
+# The function receive as inputs the data X, the labels y,
 # the weights W (as an array), and the bias b,
 # update the weights and bias W, b, according to the perceptron algorithm,
 # and return W and b.
 def perceptronStep(X, y, W, b, learn_rate = 0.01):
-    # Fill in code
+
     for i in range(len(X)):
         y_hat =  prediction(X[i],W,b)
         if y[i]-y_hat==1:
@@ -28,8 +28,10 @@ def perceptronStep(X, y, W, b, learn_rate = 0.01):
     return W, b
     
 def trainPerceptronAlgorithm(X, y, learn_rate = 0.01, num_epochs = 25):
-    x_min, x_max = min(X.T[0]), max(X.T[0])
-    y_min, y_max = min(X.T[1]), max(X.T[1])
+    X0 = np.asarray(X)[:,0] 
+    X1 = np.asarray(X)[:,1] 
+    x_min, x_max = min(X0), max(X0)
+    y_min, y_max = min(X1), max(X1)
     W = np.array(np.random.rand(2,1))
     b = np.random.rand(1)[0] + x_max
     # These are the solution lines that get plotted below.
