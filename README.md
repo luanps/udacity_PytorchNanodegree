@@ -1,1 +1,1 @@
-Assignments for Udacity nanodegree program - Pytorch Scholarship Challenge
+Assingments from Udacity Deep Learning nanodegree program - Pytorch Scholarship Challenge

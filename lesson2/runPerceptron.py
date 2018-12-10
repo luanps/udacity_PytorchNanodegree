@@ -5,7 +5,7 @@ from plotRes import plotData
 from perceptron import trainPerceptronAlgorithm
 X = []
 Y = []
-with open(sys.argv[1],'r') as f:
+with open('data.csv','r') as f:
     for line in f.readlines():
         li = line.split('\n')[0]
         x1,x2,y = li.split(',')
