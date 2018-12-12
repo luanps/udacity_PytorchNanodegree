@@ -1,4 +1,5 @@
 from torch import nn, optim
+import torch
 from torchvision import datasets, transforms
 import torch.nn.functional as F
 import helper
@@ -14,7 +15,7 @@ class Classifier(nn.Module):
         self.fc4 = nn.Linear(64, 10)
 
         #20% probability Dropout 
-        self.dropout = nn.Droput(p=.2)
+        self.dropout = nn.Dropout(p=.2)
 
     def forward(self, x):
         #flatten input tensor
@@ -32,11 +33,11 @@ transform = transforms.Compose([transforms.ToTensor(),
 
 #Download and load training data
 trainset = datasets.FashionMNIST('~/.pytorch/F_MNIST_data/',download=True,train=True,transform=transform)
-trainLoader = torch.utils.data.DataLoader(trainset, batch_size=64,suffle=True)
+trainLoader = torch.utils.data.DataLoader(trainset, batch_size=64,shuffle=True)
 
 #Download and load test data
 testset = datasets.FashionMNIST('~/.pytorch/F_MNIST_data/',download=True,train=False,transform=transform)
-testLoader = torch.utils.data.DataLoader(testset, batch_size=64,suffle=True)
+testLoader = torch.utils.data.DataLoader(testset, batch_size=64,shuffle=True)
 
 model = Classifier()
 criterion = nn.NLLLoss()
@@ -80,14 +81,14 @@ for e in range(epochs):
         train_losses.append(running_loss/len(trainLoader))
         test_losses.append(test_loss/len(testLoader))
         print("Epoch: {}/{}.. ".format(e+1,epochs),
-                "Training Loss: {:.3f}.. ".format(running_loss/len(trainloader)),
-                "Test Loss: {:.3f}.. ".format(test_loss/len(testloader)),
-                "Test Acc: {:.3f}.. ".format(acc/len(testloader)))
+                "Training Loss: {:.3f}.. ".format(running_loss/len(trainLoader)),
+                "Test Loss: {:.3f}.. ".format(test_loss/len(testLoader)),
+                "Test Acc: {:.3f}.. ".format(acc/len(testLoader)))
 
         #set model back to train mode
         model.train()
 
-dataiter = iter(testloader)
+dataiter = iter(testLoader)
 imgs, labels = dataiter.next()
 img = images[1]
 helper.view_classify(img, ps, version='Fashion')
