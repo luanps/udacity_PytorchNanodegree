@@ -66,6 +66,7 @@ for e in range(epochs):
         with torch.no_grad():
             #set model to evaluation mode (w/o dropout)
             model.eval()
+
             for imgs, labels in testLoader:
                 log_ps = model(imgs)
                 test_loss += criterion(log_ps, labels)
@@ -88,15 +89,16 @@ for e in range(epochs):
         #set model back to train mode
         model.train()
 
-dataiter = iter(testLoader)
-imgs, labels = dataiter.next()
-img = imgs[1]
-#helper.view_classify(img, ps, version='Fashion')
-
-ps = torch.exp(model(img))
+#Plot Train and Validation loss while training
 plt.plot(train_losses, label='Training loss')
 plt.plot(test_losses, label='Validation loss')
 plt.legend(frameon=False)
+plt.xlabel('Epochs')
+plt.ylabel('Error')
+plt.show()
+
 print("Model:' \n\n", model, '\n')
 print("The state dict keys: \n\n", model.state_dict().keys())
+
+#Save model to file
 torch.save(model.state_dict(), 'checkpoint.pth')
