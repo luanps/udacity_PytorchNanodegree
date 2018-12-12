@@ -2,7 +2,7 @@ from torch import nn, optim
 import torch
 from torchvision import datasets, transforms
 import torch.nn.functional as F
-import helper
+#import helper
 import matplotlib.pyplot as plt
 
 #Network architecture
@@ -43,7 +43,7 @@ model = Classifier()
 criterion = nn.NLLLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.003)
 
-epochs = 5
+epochs = 30
 steps = 0
 train_losses, test_losses = [], []
 for e in range(epochs):
@@ -90,11 +90,13 @@ for e in range(epochs):
 
 dataiter = iter(testLoader)
 imgs, labels = dataiter.next()
-img = images[1]
-helper.view_classify(img, ps, version='Fashion')
+img = imgs[1]
+#helper.view_classify(img, ps, version='Fashion')
 
 ps = torch.exp(model(img))
 plt.plot(train_losses, label='Training loss')
 plt.plot(test_losses, label='Validation loss')
 plt.legend(frameon=False)
-
+print("Model:' \n\n", model, '\n')
+print("The state dict keys: \n\n", model.state_dict().keys())
+torch.save(model.state_dict(), 'checkpoint.pth')
