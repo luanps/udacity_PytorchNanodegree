@@ -13,13 +13,16 @@ class Classifier(nn.Module):
         self.fc3 = nn.Linear(128, 64)
         self.fc4 = nn.Linear(64, 10)
 
+        #20% probability Dropout 
+        self.dropout = nn.Droput(p=.2)
+
     def forward(self, x):
         #flatten input tensor
         x = x.view(x.shape[0], -1)
 
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = F.relu(self.fc3(x))
+        x = self.dropout(F.relu(self.fc1(x)))
+        x = self.dropout(F.relu(self.fc2(x)))
+        x = self.dropout(F.relu(self.fc3(x)))
         x = F.log_softmax(self.fc4(x), dim=1)
         return x
 
@@ -60,6 +63,8 @@ for e in range(epochs):
         acc = 0
         #Disable gradients for validation
         with torch.no_grad():
+            #set model to evaluation mode (w/o dropout)
+            model.eval()
             for imgs, labels in testLoader:
                 log_ps = model(imgs)
                 test_loss += criterion(log_ps, labels)
@@ -78,6 +83,9 @@ for e in range(epochs):
                 "Training Loss: {:.3f}.. ".format(running_loss/len(trainloader)),
                 "Test Loss: {:.3f}.. ".format(test_loss/len(testloader)),
                 "Test Acc: {:.3f}.. ".format(acc/len(testloader)))
+
+        #set model back to train mode
+        model.train()
 
 dataiter = iter(testloader)
 imgs, labels = dataiter.next()
