@@ -2,6 +2,7 @@ from torch import nn, optim
 from torchvision import datasets, transforms
 import torch.nn.functional as F
 import helper
+import matplotlib.pyplot as plt
 
 #Network architecture
 class Classifier(nn.Module):
@@ -39,6 +40,8 @@ criterion = nn.NLLLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.003)
 
 epochs = 5
+steps = 0
+train_losses, test_losses = [], []
 for e in range(epochs):
     running_loss = 0
     for imgs, labels, in trainLoader:
@@ -52,12 +55,37 @@ for e in range(epochs):
         running_loss += loss.item()
     else:
         print(f"Training loss: {running_loss}")
+        
+        test_loss = 0
+        acc = 0
+        #Disable gradients for validation
+        with torch.no_grad():
+            for imgs, labels in testLoader:
+                log_ps = model(imgs)
+                test_loss += criterion(log_ps, labels)
+                #class probability
+                ps = torch.exp(log_ps)
+                #most likely classes
+                top_p, top_class = ps.topk(1, dim=1)
+                #check if top classes matches with the labels
+                equals = top_class == labels.view(*top_class.shape)
+                #convert 'equals' to a float tensor
+                acc += torch.mean(equals.type(torch.FloatTensor))
 
+        train_losses.append(running_loss/len(trainLoader))
+        test_losses.append(test_loss/len(testLoader))
+        print("Epoch: {}/{}.. ".format(e+1,epochs),
+                "Training Loss: {:.3f}.. ".format(running_loss/len(trainloader)),
+                "Test Loss: {:.3f}.. ".format(test_loss/len(testloader)),
+                "Test Acc: {:.3f}.. ".format(acc/len(testloader)))
 
 dataiter = iter(testloader)
 imgs, labels = dataiter.next()
 img = images[1]
-ps = torch.exp(model(img))
-
 helper.view_classify(img, ps, version='Fashion')
+
+ps = torch.exp(model(img))
+plt.plot(train_losses, label='Training loss')
+plt.plot(test_losses, label='Validation loss')
+plt.legend(frameon=False)
 
