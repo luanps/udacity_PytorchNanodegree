@@ -81,7 +81,7 @@ print(model)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr = 0.01)
 
-epochs = 1
+epochs = 40
 #track min validation loss
 valid_loss_min = np.Inf
 
@@ -151,3 +151,22 @@ for i in range(10):
 print('\nTest Accuracy (Overall): %2d%% (%2d/%2d)' % (
     100. * np.sum(class_correct) / np.sum(class_total),
     np.sum(class_correct), np.sum(class_total)))
+
+# obtain one batch of test images
+dataiter = iter(test_loader)
+images, labels = dataiter.next()
+
+# get sample outputs
+output = model(images)
+# convert output probabilities to predicted class
+_, preds = torch.max(output, 1)
+# prep images for display
+images = images.numpy()
+
+# plot the images in the batch, along with predicted and true labels
+fig = plt.figure(figsize=(25, 4))
+for idx in np.arange(20):
+    ax = fig.add_subplot(2, 20/2, idx+1, xticks=[], yticks=[])
+    ax.imshow(np.squeeze(images[idx]), cmap='gray')
+    ax.set_title("{} ({})".format(str(preds[idx].item()), str(labels[idx].item())),
+                 color=("green" if preds[idx]==labels[idx] else "red"))
