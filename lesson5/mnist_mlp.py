@@ -1,4 +1,5 @@
-import torch
+from torch import nn,optim, utils
+import torch.nn.functional as F
 from torch.utils.data.sampler import SubsetRandomSampler
 from torchvision import datasets
 import torchvision.transforms as transforms
@@ -32,11 +33,11 @@ train_sampler = SubsetRandomSampler(train_idx)
 valid_sampler = SubsetRandomSampler(valid_idx)
 
 # prepare data loaders
-train_loader = torch.utils.data.DataLoader(train_data, batch_size=batch_size,
+train_loader = utils.data.DataLoader(train_data, batch_size=batch_size,
             sampler=train_sampler, num_workers=num_workers)
-valid_loader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, 
+valid_loader = utils.data.DataLoader(train_data, batch_size=batch_size, 
             sampler=valid_sampler, num_workers=num_workers)
-test_loader = torch.utils.data.DataLoader(test_data, batch_size=batch_size, 
+test_loader = utils.data.DataLoader(test_data, batch_size=batch_size, 
             num_workers=num_workers)
 
 # obtain one batch of training images
@@ -54,4 +55,23 @@ for idx in np.arange(20):
     ax.set_title(str(labels[idx].item()))
 
 
+#define the NN arch
+class Net(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.fc1 = nn.Linear(28 * 28, 512)
+        self.fc2 = nn.Linear(512, 512)
+        self.fc3 = nn.Linear(512, 10)
+        self.dropout = nn.Dropout(0.2)
 
+    def forward(self, x):
+        #flatten input
+        x = x.view(-1, 28 * 28)
+        x = self.dropout(F.relu(self.fc1(x)))
+        x = self.dropout(F.relu(self.fc2(x)))
+        x = self.fc3(x)
+
+        return x
+
+model = Net()
+print(model)
