@@ -1,4 +1,5 @@
 from torch import nn,optim, utils
+import torch
 import torch.nn.functional as F
 from torch.utils.data.sampler import SubsetRandomSampler
 from torchvision import datasets
@@ -75,3 +76,44 @@ class Net(nn.Module):
 
 model = Net()
 print(model)
+
+#specify Cross Entropy loss function and SGD optimizer
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.SGD(model.parameters(), lr = 0.01)
+
+epochs = 1
+#track min validation loss
+valid_loss_min = np.Inf
+
+for epoch in range(epochs):
+    train_loss = 0.0
+    valid_loss = 0.0
+
+    model.train()
+    for data, target in train_loader:
+        optimizer.zero_grad()
+        output = model(data)
+        loss = criterion(output,target)
+        loss.backward()
+        optimizer.step()
+        train_loss += loss.item()*data.size(0)
+
+    #validate model
+    model.eval()
+    for data, target in valid_loader:
+        output = model(data)
+        loss = criterion(output, target)
+        valid_loss += loss.item()*data.size(0)
+
+    train_loss = train_loss/len(train_loader.dataset)
+    valid_loss = valid_loss/len(valid_loader.dataset)
+    print('Epoch {} \tTraining Loss: {:.6f} \tValid Loss: {:.6f}'.format(epoch+1, train_loss, valid_loss))
+
+    #save model if validation has decreased
+    if valid_loss <= valid_loss_min:
+        print('Validation loss decreased ({:.6f} --> {:.6f}).  Saving model ...'.format(
+        valid_loss_min, valid_loss))
+        torch.save(model.state_dict(), 'model.pt')
+        valid_loss_min = valid_loss
+
+
