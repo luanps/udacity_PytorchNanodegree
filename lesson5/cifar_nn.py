@@ -56,17 +56,19 @@ images = images.numpy()
 
 # helper function to un-normalize and display an image
 def imshow(img):
-        img = img / 2 + 0.5  # unnormalize
-        plt.imshow(np.transpose(img, (1, 2, 0)))  # convert from Tensor image
+    img = img / 2 + 0.5  # unnormalize
+    plt.imshow(np.transpose(img, (1, 2, 0)))  # convert from Tensor image
 
 # plot the images in the batch, along with the corresponding labels
 fig = plt.figure(figsize=(25, 4))
 for idx in np.arange(20):
     ax = fig.add_subplot(2, 20/2, idx+1, xticks=[], yticks=[])
     imshow(images[idx])
+
     # print out the correct label for each image
     # .item() gets the value contained in a Tensor
     ax.set_title(classes[labels[idx]])
+plt.show()
 
 #define the NN arch
 class Net(nn.Module):
