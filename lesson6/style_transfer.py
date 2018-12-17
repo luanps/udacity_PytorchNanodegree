@@ -119,7 +119,7 @@ show_every = 400
 
 # iteration hyperparameters
 optimizer = optim.Adam([target], lr=0.003)
-    steps =500#2000  
+steps = 2000  
 
 for ii in range(1, steps+1):
 
