@@ -51,3 +51,19 @@ class RNN(nn.Module):
         output = self.fc(r_out)
 
         return output, hidden
+
+# test that dimensions are as expected
+test_rnn = RNN(input_size=1, output_size=1, hidden_dim=10, n_layers=2)
+
+# generate evenly spaced, test data pts
+time_steps = np.linspace(0, np.pi, seq_length)
+data = np.sin(time_steps)
+data.resize((seq_length, 1))
+
+test_input = torch.Tensor(data).unsqueeze(0) # give it a batch_size of 1 as first dimension
+print('Input size: ', test_input.size())
+
+# test out rnn sizes
+test_out, test_h = test_rnn(test_input, None)
+print('Output size: ', test_out.size())
+print('Hidden state size: ', test_h.size())
