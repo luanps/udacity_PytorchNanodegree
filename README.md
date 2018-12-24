@@ -14,6 +14,8 @@ Assingments from Udacity Deep Learning nanodegree program - Pytorch Scholarship 
 	- A NN model for Image Classification in the CIFAR10 database
 * Lesson 6 - Style Transfer:
 	- Using a deep neural network to combine an artistic image style into another image.
-
+* Lesson 7 - Recurrent Neural Networks
+	- Time-series prediction using RNN
+	- Character-wise text generator using RNN 
 
 In this course there are no lessons on the modules 1 and 3.
