@@ -34,4 +34,10 @@ for review in reviews_split:
 # converting labels to 1 and 0
 labels = labels.split('\n')
 encoded_labels = np.array([1 if label == 'positive' else 0 for label in labels])
-pdb.set_trace()
+
+# remove 0-lenght reviews and their labels
+for ii, review in enumerate(reviews_ints):
+    if len(review)==0:
+        reviews_ints.pop(ii)
+        encoded_labels = np.delete(encoded_labels,ii)
+
