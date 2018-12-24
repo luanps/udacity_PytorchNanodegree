@@ -30,3 +30,8 @@ vocab_to_int = {w: ii for ii, w in enumerate(vocab, 1)}
 reviews_ints = []
 for review in reviews_split:
     reviews_ints.append([vocab_to_int[word] for word in review.split()])
+
+# converting labels to 1 and 0
+labels = labels.split('\n')
+encoded_labels = np.array([1 if label == 'positive' else 0 for label in labels])
+pdb.set_trace()
