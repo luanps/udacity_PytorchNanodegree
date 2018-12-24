@@ -217,14 +217,25 @@ def train(net, data, epochs=10, batch_size=10, seq_length=50, lr=0.001, clip=5, 
                       "Val Loss: {:.4f}".format(np.mean(val_losses)))
 
 # define and print the net
-n_hidden = 10
-n_layers = 3
+n_hidden = 256
+n_layers = 2
 
 net = CharRNN(chars, n_hidden, n_layers)
 print(net)
-batch_size = 8
+batch_size = 128
 seq_length = 100
 n_epochs =  5# start small if you are just testing initial behavior
 
 # train the model
 train(net, encoded, epochs=n_epochs, batch_size=batch_size, seq_length=seq_length, lr=0.001, print_every=10)
+
+# save the trained model
+model_name = 'rnn.net'
+
+checkpoint = {'n_hidden': net.n_hidden,
+              'n_layers': net.n_layers,
+              'state_dict': net.state_dict(),
+              'tokens': net.chars}
+
+with open(model_name, 'wb') as f:
+    torch.save(checkpoint, f)
