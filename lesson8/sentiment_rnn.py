@@ -124,10 +124,10 @@ class SentimentRNN(nn.Module):
         
         # define all layers
         self.embedding = nn.Embedding(vocab_size, embedding_dim)
-        self.lstm = nn.LSTM(embedding_dim, n_hidden, n_layers,
+        self.lstm = nn.LSTM(embedding_dim, hidden_dim, n_layers,
                     dropout = drop_prob, batch_first = True)
         self.dropout = nn.Dropout(drop_prob)
-        self.fc = nn.Linear(n_hidden, output_size)
+        self.fc = nn.Linear(hidden_dim, output_size)
         self.sig = nn.Sigmoid()
 
     def forward(self, x, hidden):
@@ -146,7 +146,7 @@ class SentimentRNN(nn.Module):
         sig_out = self.sig(out)
 
         # reshape to be batch_size first
-        sig_out = sig_out_view(batch_size, -1)
+        sig_out = sig_out.view(batch_size, -1)
         sig_out = sig_out[:, -1]
 
         # return last sigmoid output and hidden state
@@ -175,4 +175,174 @@ n_layers = 2
 
 net = SentimentRNN(vocab_size, output_size, embedding_dim, hidden_dim, n_layers)
 
-print(net
+lr = 0.001
+criterion = nn.BCELoss()
+optimizer = torch.optim.Adam(net.parameters(), lr=lr)
+
+# training params
+
+epochs = 3 # 3-4 is approx where I noticed the validation loss stop decreasing
+
+counter = 0
+print_every = 100
+clip=5 # gradient clipping
+
+# move model to GPU, if available
+if(train_on_gpu):
+    net.cuda()
+
+net.train()
+# train for some number of epochs
+for e in range(epochs):
+    # initialize hidden state
+    h = net.init_hidden(batch_size)
+
+    # batch loop
+    for inputs, labels in train_loader:
+        counter += 1
+
+        if(train_on_gpu):
+            inputs, labels = inputs.cuda(), labels.cuda()
+
+        # Creating new variables for the hidden state, otherwise
+        # we'd backprop through the entire training history
+        h = tuple([each.data for each in h])
+
+        # zero accumulated gradients
+        net.zero_grad()
+
+        # get the output from the model
+        output, h = net(inputs, h)
+
+        # calculate the loss and perform backprop
+        loss = criterion(output.squeeze(), labels.float())
+        loss.backward()
+        # `clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs.
+        nn.utils.clip_grad_norm_(net.parameters(), clip)
+        optimizer.step()
+
+        # loss stats
+        if counter % print_every == 0:
+            # Get validation loss
+            val_h = net.init_hidden(batch_size)
+            val_losses = []
+            net.eval()
+            for inputs, labels in valid_loader:
+
+                # Creating new variables for the hidden state, otherwise
+                # we'd backprop through the entire training history
+                val_h = tuple([each.data for each in val_h])
+
+                if(train_on_gpu):
+                    inputs, labels = inputs.cuda(), labels.cuda()
+
+                output, val_h = net(inputs, val_h)
+                val_loss = criterion(output.squeeze(), labels.float())
+
+                val_losses.append(val_loss.item())
+
+            net.train()
+            print("Epoch: {}/{}...".format(e+1, epochs),
+                  "Step: {}...".format(counter),
+                  "Loss: {:.6f}...".format(loss.item()),
+                  "Val Loss: {:.6f}".format(np.mean(val_losses)))
+
+# Get test data loss and accuracy
+
+test_losses = [] # track loss
+num_correct = 0
+
+# init hidden state
+h = net.init_hidden(batch_size)
+
+net.eval()
+# iterate over test data
+for inputs, labels in test_loader:
+
+    # Creating new variables for the hidden state, otherwise
+    # we'd backprop through the entire training history
+    h = tuple([each.data for each in h])
+
+    if(train_on_gpu):
+        inputs, labels = inputs.cuda(), labels.cuda()
+    
+    # get predicted outputs
+    output, h = net(inputs, h)
+    
+    # calculate loss
+    test_loss = criterion(output.squeeze(), labels.float())
+    test_losses.append(test_loss.item())
+    
+    # convert output probabilities to predicted class (0 or 1)
+    pred = torch.round(output.squeeze())  # rounds to the nearest integer
+    
+    # compare predictions to true label
+    correct_tensor = pred.eq(labels.float().view_as(pred))
+    correct = np.squeeze(correct_tensor.numpy()) if not train_on_gpu else np.squeeze(correct_tensor.cpu().numpy())
+    num_correct += np.sum(correct)
+
+
+# -- stats! -- ##
+# avg test loss
+print("Test loss: {:.3f}".format(np.mean(test_losses)))
+
+# accuracy over all test data
+test_acc = num_correct/len(test_loader.dataset)
+print("Test accuracy: {:.3f}".format(test_acc))
+
+
+def tokenize_review(test_review):
+    test_review = test_review.lower() # lowercase
+    # get rid of punctuation
+    test_text = ''.join([c for c in test_review if c not in punctuation])
+
+    # splitting by spaces
+    test_words = test_text.split()
+
+    # tokens
+    test_ints = []
+    test_ints.append([vocab_to_int[word] for word in test_words])
+
+    return test_ints
+
+def predict(net, test_review, sequence_length=200):
+    
+    net.eval()
+    
+    # tokenize review
+    test_ints = tokenize_review(test_review)
+    
+    # pad tokenized sequence
+    seq_length=sequence_length
+    features = pad_features(test_ints, seq_length)
+    
+    # convert to tensor to pass into your model
+    feature_tensor = torch.from_numpy(features)
+    
+    batch_size = feature_tensor.size(0)
+    
+    # initialize hidden state
+    h = net.init_hidden(batch_size)
+    
+    if(train_on_gpu):
+        feature_tensor = feature_tensor.cuda()
+    
+    # get the output from the model
+    output, h = net(feature_tensor, h)
+    
+    # convert output probabilities to predicted class (0 or 1)
+    pred = torch.round(output.squeeze()) 
+    # printing output value, before rounding
+    print('Prediction value, pre-rounding: {:.6f}'.format(output.item()))
+    
+    # print custom response
+    if(pred.item()==1):
+        print("Positive review detected!")
+    else:
+        print("Negative review detected.")
+       
+test_review_pos = 'This movie had the best acting and the dialogue was so good. I loved it.'
+# call function
+seq_length=200 # good to use the length that was trained on
+
+predict(net, test_review_neg, seq_length)
