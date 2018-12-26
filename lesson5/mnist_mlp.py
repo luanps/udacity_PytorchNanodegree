@@ -55,7 +55,6 @@ for idx in np.arange(20):
     # .item() gets the value contained in a Tensor
     ax.set_title(str(labels[idx].item()))
 
-
 #define the NN arch
 class Net(nn.Module):
     def __init__(self):
@@ -113,7 +112,7 @@ for epoch in range(epochs):
     if valid_loss <= valid_loss_min:
         print('Validation loss decreased ({:.6f} --> {:.6f}).  Saving model ...'.format(
         valid_loss_min, valid_loss))
-        torch.save(model.state_dict(), 'model.pt')
+        torch.save(model.state_dict(), 'model.pth')
         valid_loss_min = valid_loss
 
 #Test stage

@@ -2,7 +2,6 @@ from torch import nn, optim
 import torch
 from torchvision import datasets, transforms
 import torch.nn.functional as F
-#import helper
 import matplotlib.pyplot as plt
 
 #Network architecture
@@ -89,7 +88,8 @@ for e in range(epochs):
         #set model back to train mode
         model.train()
 
-#Plot Train and Validation loss while training
+
+#Plot Train and Validation loss
 plt.plot(train_losses, label='Training loss')
 plt.plot(test_losses, label='Validation loss')
 plt.legend(frameon=False)
@@ -97,8 +97,10 @@ plt.xlabel('Epochs')
 plt.ylabel('Error')
 plt.show()
 
+#Save model to file
+torch.save(model.state_dict(), 'checkpoint.pth')
 print("Model:' \n\n", model, '\n')
 print("The state dict keys: \n\n", model.state_dict().keys())
 
-#Save model to file
-torch.save(model.state_dict(), 'checkpoint.pth')
+
+

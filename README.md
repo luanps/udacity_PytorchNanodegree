@@ -19,4 +19,6 @@ Assingments from Udacity Deep Learning nanodegree program - Pytorch Scholarship 
 	- Character-wise text generator using RNN 
 * Lesson 8 - Sentiment Prediction with RNNs
 	- Sentiment analysis with an RNN
+
+
 In this course there are no lessons on the modules 1 and 3.

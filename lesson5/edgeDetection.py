@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 import sys
 image = cv2.imread(sys.argv[1])
+
 # Convert to grayscale for filtering
 gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 plt.imshow(gray, cmap='gray')
