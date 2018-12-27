@@ -40,19 +40,19 @@ model = models.vgg16(pretrained=True)#.features
 for param in model.parameters():
     param.requires_grad_ = False
 
-'''model.classifier[-1] = nn.Sequential(
+model.classifier[-1] = nn.Sequential(
                      nn.Linear(4096,256),
                      nn.ReLU(),
                      nn.Dropout(.5),
-                     nn.Linear(256,len(cat_to_name)))'''
-model.classifier[6] = nn.Linear(in_features=4096,out_features=len(cat_to_name))
+                     nn.Linear(256,len(cat_to_name)))
+#model.classifier[6] = nn.Linear(in_features=4096,out_features=len(cat_to_name))
 
 print(model)
 
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters())
-#optimizer = optim.SGD(model.parameters(),lr=0.001,momentum=0.9)
-epochs = 10
+#optimizer = optim.Adam(model.parameters())
+optimizer = optim.SGD(model.parameters(),lr=0.01,momentum=0.9)
+epochs = 50
 valid_loss_min = np.Inf
 
 if train_on_gpu:
