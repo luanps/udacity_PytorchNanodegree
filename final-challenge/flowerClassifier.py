@@ -51,7 +51,7 @@ print(model)
 
 criterion = nn.CrossEntropyLoss()
 #optimizer = optim.Adam(model.parameters())
-optimizer = optim.SGD(model.parameters(),lr=0.01,momentum=0.9)
+optimizer = optim.SGD(model.parameters(),lr=0.001,momentum=0.9)
 epochs = 50
 valid_loss_min = np.Inf
 
