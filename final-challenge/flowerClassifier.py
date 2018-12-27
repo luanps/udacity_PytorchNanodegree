@@ -27,7 +27,7 @@ def load_image(data_dir, size=224):
                                     transforms.Normalize(mean=[.485,.456,.406], std=[.229,.224,.225])])
 
     data = datasets.ImageFolder(data_dir,transform=transform)
-    dataloaders = utils.data.DataLoader(data, batch_size=32,shuffle=True)
+    dataloaders = utils.data.DataLoader(data, batch_size=16,shuffle=True)
     return dataloaders
 
 train_loader = load_image(train_dir,224)
@@ -36,15 +36,15 @@ valid_loader = load_image(valid_dir,224)
 with open('cat_to_name.json', 'r') as f:
     cat_to_name = json.load(f)
 
-model = models.vgg16(pretrained=True)#.features
+model = models.resnet152(pretrained=True)#.features
 for param in model.parameters():
     param.requires_grad_ = False
-
-model.classifier[-1] = nn.Sequential(
-                     nn.Linear(4096,2048),
+model.fc = nn.Linear(2048,len(cat_to_name))
+'''model.classifier = nn.Sequential(
+                     nn.Linear(2208,2208),
                      nn.ReLU(),
                      nn.Dropout(.5),
-                     nn.Linear(2048,len(cat_to_name)))
+                     nn.Linear(2208,len(cat_to_name)))'''
 #model.classifier[6] = nn.Linear(in_features=4096,out_features=len(cat_to_name))
 
 print(model)
