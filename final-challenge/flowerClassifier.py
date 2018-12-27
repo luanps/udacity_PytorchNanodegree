@@ -41,10 +41,10 @@ for param in model.parameters():
     param.requires_grad_ = False
 
 model.classifier[-1] = nn.Sequential(
-                     nn.Linear(4096,256),
+                     nn.Linear(4096,2048),
                      nn.ReLU(),
                      nn.Dropout(.5),
-                     nn.Linear(256,len(cat_to_name)))
+                     nn.Linear(2048,len(cat_to_name)))
 #model.classifier[6] = nn.Linear(in_features=4096,out_features=len(cat_to_name))
 
 print(model)
